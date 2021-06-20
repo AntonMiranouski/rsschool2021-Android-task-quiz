@@ -14,7 +14,6 @@ class MainActivity : AppCompatActivity(), OnChangeFragmentListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         openQuizFragment(0, answersList)
-
     }
 
     private fun openQuizFragment(position: Int, selectedOptions: IntArray) {

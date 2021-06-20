@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import com.rsschool.quiz.databinding.FragmentQuizBinding
 
@@ -22,20 +21,6 @@ class QuizFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as OnChangeFragmentListener?
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (position != 0) {
-            activity?.onBackPressedDispatcher?.addCallback(
-                this,
-                object : OnBackPressedCallback(true) {
-                    override fun handleOnBackPressed() {
-                        listener?.onChangeFragmentListener(position - 1, selectedOptions)
-                    }
-                }
-            )
-        }
     }
 
     override fun onCreateView(
@@ -56,6 +41,7 @@ class QuizFragment : Fragment() {
 
         if (position == 0) {
             binding.previousButton.isEnabled = false
+            binding.toolbar.navigationIcon = null
         }
 
         if (position == 4) {
@@ -97,6 +83,10 @@ class QuizFragment : Fragment() {
         }
 
         binding.previousButton.setOnClickListener {
+            listener?.onChangeFragmentListener(position - 1, selectedOptions)
+        }
+
+        binding.toolbar.setNavigationOnClickListener {
             listener?.onChangeFragmentListener(position - 1, selectedOptions)
         }
     }
