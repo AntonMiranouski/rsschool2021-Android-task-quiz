@@ -51,8 +51,8 @@ class ResultFragment : Fragment() {
 
         var rightAnswers = 0
 
-        selectedOptions.forEach {
-            if (it == SampleData.questions[it].correctAnswer) {
+        for (i in selectedOptions.indices) {
+            if (selectedOptions[i] == SampleData.questions[i].correctAnswer) {
                 rightAnswers++
             }
         }
@@ -90,6 +90,7 @@ class ResultFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        listener = null
         _binding = null
     }
 

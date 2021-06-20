@@ -103,6 +103,7 @@ class QuizFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        listener = null
         _binding = null
     }
 
