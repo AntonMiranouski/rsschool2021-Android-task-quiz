@@ -6,24 +6,36 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import com.rsschool.quiz.databinding.FragmentQuizBinding
 
 class QuizFragment : Fragment() {
 
-    // TODO : Implement Submit functionality
-    // TODO : Implement theme changing
+    private var _binding: FragmentQuizBinding? = null
+    private val binding get() = _binding!!
 
-    interface OnQuizFragmentListener {
-        fun onQuizFragmentListener(position: Int, selectedOptions: IntArray)
-    }
-
-    private lateinit var binding: FragmentQuizBinding
-    private var listener: OnQuizFragmentListener? = null
+    private var listener: OnChangeFragmentListener? = null
+    private var position = 0
+    private var selectedOptions = intArrayOf(-1, -1, -1, -1, -1)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        listener = context as OnQuizFragmentListener?
+        listener = context as OnChangeFragmentListener?
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (position != 0) {
+            activity?.onBackPressedDispatcher?.addCallback(
+                this,
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        listener?.onChangeFragmentListener(position - 1, selectedOptions)
+                    }
+                }
+            )
+        }
     }
 
     override fun onCreateView(
@@ -31,15 +43,15 @@ class QuizFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentQuizBinding.inflate(inflater, container, false)
+        setTheme()
+        _binding = FragmentQuizBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val position = arguments?.getInt(POSITION_KEY) ?: 0
-        val selectedOptions =
+        selectedOptions =
             arguments?.getIntArray(SELECTED_OPTIONS_KEY) ?: intArrayOf(-1, -1, -1, -1, -1)
 
         if (position == 0) {
@@ -48,8 +60,9 @@ class QuizFragment : Fragment() {
 
         if (position == 4) {
             binding.nextButton.text = "Submit"
-            binding.nextButton.isEnabled = false
         }
+
+        binding.toolbar.title = "Question " + (position + 1).toString()
 
         val currentQuestion = SampleData.questions[position]
         binding.question.text = currentQuestion.question
@@ -59,6 +72,8 @@ class QuizFragment : Fragment() {
             radioButton.apply {
                 id = index
                 text = option
+                textSize = 16F
+                height = 120
                 if (selectedOptions[position] == index) {
                     isChecked = true
                 }
@@ -66,8 +81,8 @@ class QuizFragment : Fragment() {
             radioGroup.addView(radioButton)
         }
 
-        if (selectedOptions[position] != -1) {
-            binding.nextButton.isEnabled = true
+        if (selectedOptions[position] == -1) {
+            binding.nextButton.isEnabled = false
         }
 
         binding.radioGroup.setOnCheckedChangeListener { _, _ ->
@@ -78,11 +93,46 @@ class QuizFragment : Fragment() {
         }
 
         binding.nextButton.setOnClickListener {
-            listener?.onQuizFragmentListener(position + 1, selectedOptions)
+            listener?.onChangeFragmentListener(position + 1, selectedOptions)
         }
 
         binding.previousButton.setOnClickListener {
-            listener?.onQuizFragmentListener(position - 1, selectedOptions)
+            listener?.onChangeFragmentListener(position - 1, selectedOptions)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun setTheme() {
+        when (position) {
+            0 -> {
+                activity?.setTheme(R.style.Theme_Quiz_First)
+                activity?.window?.statusBarColor =
+                    resources.getColor(R.color.deep_orange_100_dark, activity?.theme)
+            }
+            1 -> {
+                activity?.setTheme(R.style.Theme_Quiz_Second)
+                activity?.window?.statusBarColor =
+                    resources.getColor(R.color.yellow_100_dark, activity?.theme)
+            }
+            2 -> {
+                activity?.setTheme(R.style.Theme_Quiz_Third)
+                activity?.window?.statusBarColor =
+                    resources.getColor(R.color.deep_purple_100_dark, activity?.theme)
+            }
+            3 -> {
+                activity?.setTheme(R.style.Theme_Quiz_Fourth)
+                activity?.window?.statusBarColor =
+                    resources.getColor(R.color.light_green_100_dark, activity?.theme)
+            }
+            4 -> {
+                activity?.setTheme(R.style.Theme_Quiz_Fifth)
+                activity?.window?.statusBarColor =
+                    resources.getColor(R.color.cyan_100_dark, activity?.theme)
+            }
         }
     }
 
@@ -91,6 +141,9 @@ class QuizFragment : Fragment() {
         @JvmStatic
         fun newInstance(position: Int, selectedOptions: IntArray): QuizFragment {
             val fragment = QuizFragment()
+            fragment.position = position
+            fragment.selectedOptions = selectedOptions
+
             val args = Bundle().apply {
                 putInt(POSITION_KEY, position)
                 putIntArray(SELECTED_OPTIONS_KEY, selectedOptions)

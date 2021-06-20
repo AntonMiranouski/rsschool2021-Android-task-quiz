@@ -4,9 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.rsschool.quiz.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity(), QuizFragment.OnQuizFragmentListener {
-
-    // TODO : Create Result screen
+class MainActivity : AppCompatActivity(), OnChangeFragmentListener {
 
     private lateinit var binding: ActivityMainBinding
     private var answersList = intArrayOf(-1, -1, -1, -1, -1)
@@ -20,14 +18,22 @@ class MainActivity : AppCompatActivity(), QuizFragment.OnQuizFragmentListener {
     }
 
     private fun openQuizFragment(position: Int, selectedOptions: IntArray) {
-        val fragment = QuizFragment.newInstance(position, selectedOptions)
-        supportFragmentManager
-            .beginTransaction()
-            .replace(binding.container.id, fragment)
-            .commit()
+        if (position == 5) {
+            val fragment = ResultFragment.newInstance(position, selectedOptions)
+            supportFragmentManager
+                .beginTransaction()
+                .replace(binding.container.id, fragment)
+                .commit()
+        } else {
+            val fragment = QuizFragment.newInstance(position, selectedOptions)
+            supportFragmentManager
+                .beginTransaction()
+                .replace(binding.container.id, fragment)
+                .commit()
+        }
     }
 
-    override fun onQuizFragmentListener(position: Int, selectedOptions: IntArray) {
+    override fun onChangeFragmentListener(position: Int, selectedOptions: IntArray) {
         openQuizFragment(position, selectedOptions)
     }
 }
